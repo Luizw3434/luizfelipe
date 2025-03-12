@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo de Matemática</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game">
+    <h1>Jogo de Matemática!</h1>
+    <div id="question-container">
+      <p id="question">Aqui aparece a pergunta</p>
+      <input type="number" id="answer" placeholder="Digite sua resposta">
+      <button onclick="checkAnswer()">Responder</button>
+      <p id="timer">Tempo: <span id="time-left">10</span>s</p>
+    </div>
+    <div id="score-container">
+      <p>Pontos: <span id="score">0</span></p>
+      <p>Acertos: <span id="correct">0</span></p>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
+CSS
+css
+
+Copiar
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f9;
+}
+
+#game {
+  text-align: center;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+#question-container {
+  margin-bottom: 20px;
+}
+
+input {
+  padding: 5px;
+  font-size: 1em;
+  width: 60px;
+  text-align: center;
+}
+
+button {
+  padding: 5px 10px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+#score-container p {
+  margin-top: 10px;
+  font-size: 1.2em;
+}
+JavaScript
+Javas
+
+Copiar
+let score = 0;
+let correctAnswers = 0;
+let timeLeft = 10;
+let currentQuestion;
+let timer;
+let level = 1;
+
+const questionElement = document.getElementById("question");
+const scoreElement = document.getElementById("score");
+const correctElement = document.getElementById("correct");
+const timerElement = document.getElementById("time-left");
+const answerInput = document.getElementById("answer");
+
+const sounds = {
+  correct: new Audio('correct.mp3'),
+  wrong: new Audio('wrong.mp3')
+};
+
+function startGame() {
+  generateQuestion();
+  startTimer();
+}
+
+function generateQuestion() {
+  const num1 = Math.floor(Math.random() * (10 * level));
+  const num2 = Math.floor(Math.random() * (10 * level));
+  const operator = Math.random() > 0.5 ? "+" : (Math.random() > 0.5 ? "-" : "*");
+  currentQuestion = { num1, num2, operator };
+
+  questionElement.textContent = `Qual é ${num1} ${operator} ${num2}?`;
+}
+
+function startTimer() {
+  timer = setInterval(function() {
+    timeLeft--;
+    timerElement.textContent = `${timeLeft}s`;
+
+    if (timeLeft <= 0) {
+      endQuestion();
+    }
+  }, 1000);
+}
+
+function checkAnswer() {
+  const userAnswer = parseInt(answerInput.value);
+  const correctAnswer = calculateAnswer(currentQuestion);
+
+  if (userAnswer === correctAnswer) {
+    score++;
+    correctAnswers++;
+    scoreElement.textContent = score;
+    correctElement.textContent = correctAnswers;
+    sounds.correct.play();
+    increaseDifficulty();
+  } else {
+    sounds.wrong.play();
+  }
+
+  endQuestion();
+}
+
+function calculateAnswer(question) {
+  const { num1, num2, operator } = question;
+
+  switch (operator) {
+    case "+":
+      return num1 + num2;
+    case "-":
+      return num1 - num2;
+    case "*":
+      return num1 * num2;
+    default:
+      return 0;
+  }
+}
+
+function endQuestion() {
+  clearInterval(timer);
+  setTimeout(function() {
+    timeLeft = 10;
+    timerElement.textContent = `${timeLeft}s`;
+    generateQuestion();
+    startTimer();
+  }, 1000);
+}
+
+function increaseDifficulty() {
+  if (correctAnswers % 5 === 0) {
+    level++;
+    alert("A dificuldade aumentou! Prepare-se!");
+  }
+}
+
+startGame();
